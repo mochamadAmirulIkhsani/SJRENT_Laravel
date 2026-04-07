@@ -27,7 +27,7 @@
                             <p class="font-medium">{{ $motorcycle->name }}</p>
                             <p class="text-xs text-gray-500">{{ $motorcycle->plate_number }} · {{ $motorcycle->category?->name }}</p>
                         </div>
-                        <a class="rounded-lg bg-amber-600 px-3 py-2 text-sm font-semibold text-white hover:bg-amber-500" href="{{ route('filament.admin.resources.rentals.create', ['start_date' => $dateDetails['date']->toDateString(), 'estimated_return_date' => $dateDetails['date']->toDateString(), 'motorcycle_id' => $motorcycle->id]) }}">Sewa</a>
+                        <x-cta-button href="{{ route('filament.admin.resources.rentals.create', ['start_date' => $dateDetails['date']->toDateString(), 'estimated_return_date' => $dateDetails['date']->toDateString(), 'motorcycle_id' => $motorcycle->id]) }}" variant="warning" size="sm">Sewa</x-cta-button>
                     </div>
                 @empty
                     <p class="text-sm text-gray-500">Tidak ada motor yang tersedia pada tanggal ini.</p>

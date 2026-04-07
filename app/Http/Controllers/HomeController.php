@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CompanySetting;
+use App\Models\Gallery;
 use App\Models\Testimonial;
 use App\Models\Motorcycle;
 use App\Helpers\SEOHelper;
@@ -14,6 +15,11 @@ class HomeController extends Controller
     {
         $settings = CompanySetting::getInstance();
         $testimonials = Testimonial::getForPublicDisplay(6);
+        $galleries = Gallery::query()
+            ->orderBy('display_order')
+            ->orderBy('created_at', 'desc')
+            ->take(8)
+            ->get();
         $motorcycles = Motorcycle::where('status', Motorcycle::STATUS_AVAILABLE)
             ->with('category')
             ->latest()
@@ -23,6 +29,6 @@ class HomeController extends Controller
         $seo = new SEOHelper();
         $seo->setDefaults();
         
-        return view('pages.home', compact('settings', 'testimonials', 'motorcycles'));
+        return view('pages.home', compact('settings', 'testimonials', 'motorcycles', 'galleries'));
     }
 }

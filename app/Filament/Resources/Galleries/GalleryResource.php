@@ -13,11 +13,11 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
@@ -159,7 +159,7 @@ class GalleryResource extends Resource
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    \Filament\Tables\Actions\BulkAction::make('changeCategory')
+                    \Filament\Actions\BulkAction::make('changeCategory')
                         ->label('Change Category')
                         ->icon('heroicon-o-tag')
                         ->form([

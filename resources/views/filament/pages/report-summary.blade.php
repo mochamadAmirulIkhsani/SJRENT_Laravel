@@ -9,7 +9,7 @@
 			<input id="end_date" type="date" name="end_date" value="{{ $this->endDate }}" class="mt-1 w-full rounded-lg border-gray-300" />
 		</div>
 		<div class="flex items-end">
-			<button class="w-full rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500" type="submit">Terapkan</button>
+			<x-cta-button as="button" type="submit" variant="warning" size="sm" class="w-full">Terapkan</x-cta-button>
 		</div>
 	</form>
 
@@ -36,8 +36,8 @@
 		<div class="mb-3 flex items-center justify-between">
 			<h3 class="font-semibold">Motor Paling Sering Disewa</h3>
 			<div class="flex gap-2 text-xs">
-				<a class="rounded bg-gray-100 px-3 py-1 hover:bg-gray-200" href="{{ route('reports.export.pdf', ['start_date' => $this->startDate, 'end_date' => $this->endDate]) }}" target="_blank">Export PDF</a>
-				<a class="rounded bg-gray-100 px-3 py-1 hover:bg-gray-200" href="{{ route('reports.export.excel', ['start_date' => $this->startDate, 'end_date' => $this->endDate]) }}">Export Excel</a>
+				<x-cta-button href="{{ route('reports.export.pdf', ['start_date' => $this->startDate, 'end_date' => $this->endDate]) }}" target="_blank" variant="subtle" size="xs" class="rounded">Export PDF</x-cta-button>
+				<x-cta-button href="{{ route('reports.export.excel', ['start_date' => $this->startDate, 'end_date' => $this->endDate]) }}" variant="subtle" size="xs" class="rounded">Export Excel</x-cta-button>
 			</div>
 		</div>
 		<div class="space-y-2 text-sm">

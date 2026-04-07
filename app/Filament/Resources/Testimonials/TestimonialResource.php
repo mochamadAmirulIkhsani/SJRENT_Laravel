@@ -14,10 +14,10 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
@@ -163,7 +163,7 @@ class TestimonialResource extends Resource
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    \Filament\Tables\Actions\BulkAction::make('approve')
+                    \Filament\Actions\BulkAction::make('approve')
                         ->label('Approve Selected')
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
@@ -173,7 +173,7 @@ class TestimonialResource extends Resource
                         ->deselectRecordsAfterCompletion()
                         ->requiresConfirmation(),
                     
-                    \Filament\Tables\Actions\BulkAction::make('unapprove')
+                    \Filament\Actions\BulkAction::make('unapprove')
                         ->label('Unapprove Selected')
                         ->icon('heroicon-o-x-circle')
                         ->color('warning')
