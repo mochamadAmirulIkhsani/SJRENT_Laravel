@@ -43,6 +43,12 @@ class DatabaseSeeder extends Seeder
         ]);
         $cashier->assignRole('cashier');
 
-        $this->call(DummyDataSeeder::class);
+        $this->call([
+            CompanySettingSeeder::class,
+            CategorySeeder::class,
+            MotorcycleSeeder::class,
+            TestimonialSeeder::class,
+            DummyDataSeeder::class,
+        ]);
     }
 }

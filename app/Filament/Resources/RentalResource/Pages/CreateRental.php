@@ -10,6 +10,17 @@ class CreateRental extends CreateRecord
 {
     protected static string $resource = RentalResource::class;
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\Action::make('back')
+                ->label('Kembali')
+                ->icon('heroicon-o-arrow-left')
+                ->color('gray')
+                ->url(RentalResource::getUrl('index')),
+        ];
+    }
+
     public function mount(): void
     {
         parent::mount();

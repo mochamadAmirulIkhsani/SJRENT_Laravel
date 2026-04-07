@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Motorcycle extends Model
 {
@@ -22,11 +23,16 @@ class Motorcycle extends Model
     protected $fillable = [
         'category_id',
         'name',
+        'slug',
         'plate_number',
         'price_per_day',
         'late_fee_per_day',
         'image',
         'status',
+        'seo_title',
+        'seo_description',
+        'features',
+        'specifications',
     ];
 
     protected function casts(): array
@@ -34,7 +40,26 @@ class Motorcycle extends Model
         return [
             'price_per_day' => 'decimal:2',
             'late_fee_per_day' => 'decimal:2',
+            'features' => 'array',
+            'specifications' => 'array',
         ];
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($motorcycle) {
+            if (empty($motorcycle->slug)) {
+                $motorcycle->slug = Str::slug($motorcycle->name);
+            }
+        });
+        
+        static::updating(function ($motorcycle) {
+            if ($motorcycle->isDirty('name') && empty($motorcycle->slug)) {
+                $motorcycle->slug = Str::slug($motorcycle->name);
+            }
+        });
     }
 
     public function category(): BelongsTo

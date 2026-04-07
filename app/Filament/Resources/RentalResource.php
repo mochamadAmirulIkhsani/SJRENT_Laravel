@@ -6,16 +6,20 @@ use App\Filament\Resources\RentalResource\Pages;
 use App\Models\Motorcycle;
 use App\Models\Rental;
 use Carbon\Carbon;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Get;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
@@ -26,15 +30,15 @@ class RentalResource extends Resource
 {
     protected static ?string $model = Rental::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
+    protected static string |\BackedEnum | null $navigationIcon = 'heroicon-o-clipboard-document-check';
 
-    protected static ?string $navigationGroup = 'Operasional';
+    protected static string |\UnitEnum | null $navigationGroup = 'Operasional';
 
     protected static ?int $navigationSort = 1;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 // Layout plan:
                 // Tab 1 Overview: edit summary + two-column sections for participants and status
@@ -70,6 +74,7 @@ class RentalResource extends Resource
                                         Section::make('Status')
                                             ->schema([
                                                 Select::make('status')
+                                                    ->id('rental_status')
                                                     ->options([
                                                         Rental::STATUS_ONGOING => 'Berlangsung',
                                                         Rental::STATUS_COMPLETED => 'Selesai',
@@ -103,25 +108,28 @@ class RentalResource extends Resource
                                                     ->prefix('Rp')
                                                     ->live(),
                                                 Placeholder::make('calculated_summary')
-                                                    ->label('Estimasi Biaya')
+                                                    ->hiddenLabel()
+                                                    ->extraAttributes([
+                                                        'id' => 'data.calculated_summary',
+                                                    ])
                                                     ->content(function (Get $get): string {
                                                         $motorId = (int) $get('motorcycle_id');
                                                         $start = $get('start_date');
                                                         $end = $get('estimated_return_date');
 
                                                         if (!$motorId || !$start || !$end) {
-                                                            return 'Pilih motor dan tanggal sewa untuk melihat estimasi biaya.';
+                                                            return 'Estimasi Biaya: Pilih motor dan tanggal sewa untuk melihat estimasi biaya.';
                                                         }
 
                                                         $motorcycle = Motorcycle::query()->find($motorId);
                                                         if (!$motorcycle) {
-                                                            return 'Motor tidak ditemukan.';
+                                                            return 'Estimasi Biaya: Motor tidak ditemukan.';
                                                         }
 
                                                         $days = max(1, Carbon::parse($start)->diffInDays(Carbon::parse($end)) + 1);
                                                         $total = $days * (float) $motorcycle->price_per_day;
 
-                                                        return "Durasi {$days} hari | Estimasi total: Rp " . number_format($total, 0, ',', '.');
+                                                        return "Estimasi Biaya: Durasi {$days} hari | Estimasi total: Rp " . number_format($total, 0, ',', '.');
                                                     }),
                                             ]),
                                     ]),
@@ -142,7 +150,6 @@ class RentalResource extends Resource
                                     ]),
                             ]),
                     ])
-                    ->persistTabInQueryString()
                     ->columnSpanFull(),
             ]);
     }
@@ -180,8 +187,8 @@ class RentalResource extends Resource
                     ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make('return_motorcycle')
+                EditAction::make(),
+                Action::make('return_motorcycle')
                     ->label('Kembalikan Motor')
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('success')
@@ -196,15 +203,15 @@ class RentalResource extends Resource
                             (float) ($data['additional_fee'] ?? 0),
                         );
                     }),
-                Tables\Actions\Action::make('invoice')
+                Action::make('invoice')
                     ->label('Invoice')
                     ->icon('heroicon-o-printer')
                     ->url(fn (Rental $record): string => route('rentals.invoice', $record))
                     ->openUrlInNewTab(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -225,3 +232,4 @@ class RentalResource extends Resource
         ];
     }
 }
+
