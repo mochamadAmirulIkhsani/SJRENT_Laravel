@@ -14,9 +14,9 @@ class AvailabilityFullCalendarWidget extends FullCalendarWidget
 {
     public ?int $motorcycleId = null;
 
-    protected static ?string $heading = 'Kalender Ketersediaan Motor';
+    protected ?string $heading = 'Kalender Ketersediaan Motor';
 
-    protected static ?string $pollingInterval = null;
+    protected ?string $pollingInterval = null;
 
     protected function headerActions(): array
     {

@@ -13,6 +13,11 @@ class EditCustomer extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('back')
+                ->label('Kembali')
+                ->icon('heroicon-o-arrow-left')
+                ->color('gray')
+                ->url(CustomerResource::getUrl('index')),
             Actions\DeleteAction::make(),
         ];
     }

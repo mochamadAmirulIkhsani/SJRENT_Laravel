@@ -4,14 +4,18 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CustomerResource\Pages;
 use App\Models\Customer;
-use Filament\Forms\Components\Grid;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Tabs;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -20,15 +24,15 @@ class CustomerResource extends Resource
 {
     protected static ?string $model = Customer::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static string |\BackedEnum | null $navigationIcon = 'heroicon-o-user-group';
 
-    protected static ?string $navigationGroup = 'Master Data';
+    protected static string |\UnitEnum | null $navigationGroup = 'Master Data';
 
     protected static ?int $navigationSort = 3;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 // Layout plan:
                 // Tab 1 Overview: edit summary + two-column sections for identity and legal documents
@@ -87,8 +91,8 @@ class CustomerResource extends Resource
             ])
             ->filters([])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
+                EditAction::make(),
+                DeleteAction::make()
                     ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') ?? false)
                     ->before(function (Customer $record): void {
                         if ($record->hasActiveRental()) {
@@ -97,8 +101,8 @@ class CustomerResource extends Resource
                     }),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -119,3 +123,4 @@ class CustomerResource extends Resource
         ];
     }
 }
+

@@ -8,9 +8,9 @@ use Filament\Pages\Page;
 
 class ReportSummary extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-chart-bar-square';
+    protected static string |\BackedEnum | null $navigationIcon = 'heroicon-o-chart-bar-square';
 
-    protected static ?string $navigationGroup = 'Laporan';
+    protected static string |\UnitEnum | null $navigationGroup = 'Laporan';
 
     protected static ?int $navigationSort = 1;
 
@@ -18,7 +18,7 @@ class ReportSummary extends Page
 
     public string $endDate;
 
-    protected static string $view = 'filament.pages.report-summary';
+    protected string $view = 'filament.pages.report-summary';
 
     public function mount(): void
     {
