@@ -8,13 +8,13 @@ use Filament\Widgets\ChartWidget;
 
 class RentalRevenueChart extends ChartWidget
 {
-    protected static ?string $heading = 'Pendapatan 6 Bulan';
+    protected ?string $heading = 'Pendapatan 6 Bulan';
 
-    protected static ?string $description = 'Arus pembayaran masuk per bulan';
+    protected ?string $description = 'Arus pembayaran masuk per bulan';
 
-    protected static ?string $maxHeight = '300px';
+    protected ?string $maxHeight = '300px';
 
-    protected static string $color = 'warning';
+    protected string $color = 'warning';
 
     protected function getData(): array
     {

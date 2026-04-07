@@ -48,7 +48,16 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 NavigationGroup::make('Master Data'),
                 NavigationGroup::make('Operasional'),
+                NavigationGroup::make('Konten Website'),
+                NavigationGroup::make('Pengaturan'),
                 NavigationGroup::make('Laporan')->collapsed(),
+            ])
+            ->navigationItems([
+                \Filament\Navigation\NavigationItem::make('Preview Website')
+                    ->url('/', shouldOpenInNewTab: true)
+                    ->icon('heroicon-o-globe-alt')
+                    ->group('Konten Website')
+                    ->sort(1),
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([

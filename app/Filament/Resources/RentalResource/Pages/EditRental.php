@@ -13,6 +13,11 @@ class EditRental extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('back')
+                ->label('Kembali')
+                ->icon('heroicon-o-arrow-left')
+                ->color('gray')
+                ->url(RentalResource::getUrl('index')),
             Actions\DeleteAction::make(),
         ];
     }

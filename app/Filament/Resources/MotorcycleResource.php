@@ -4,34 +4,39 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\MotorcycleResource\Pages;
 use App\Models\Motorcycle;
-use Filament\Forms\Components\Grid;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Table;
 
 class MotorcycleResource extends Resource
 {
     protected static ?string $model = Motorcycle::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-truck';
+    protected static string |\BackedEnum | null $navigationIcon = 'heroicon-o-truck';
 
-    protected static ?string $navigationGroup = 'Master Data';
+    protected static string |\UnitEnum | null $navigationGroup = 'Master Data';
 
     protected static ?int $navigationSort = 2;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 // Layout plan:
                 // Tab 1 Overview: edit summary + two-column sections (identity and operational status)
@@ -51,7 +56,21 @@ class MotorcycleResource extends Resource
                                     ->schema([
                                         Section::make('Identitas Motor')
                                             ->schema([
-                                                TextInput::make('name')->required()->maxLength(255),
+                                                TextInput::make('name')
+                                                    ->required()
+                                                    ->maxLength(255)
+                                                    ->reactive()
+                                                    ->afterStateUpdated(function ($state, $set, $get) {
+                                                        if (empty($get('slug'))) {
+                                                            $set('slug', \Illuminate\Support\Str::slug($state));
+                                                        }
+                                                    }),
+                                                TextInput::make('slug')
+                                                    ->required()
+                                                    ->maxLength(255)
+                                                    ->unique(ignoreRecord: true)
+                                                    ->helperText('Auto-generated from name, used in URL')
+                                                    ->disabled(fn ($operation) => $operation === 'create'),
                                                 TextInput::make('plate_number')
                                                     ->required()
                                                     ->maxLength(255)
@@ -89,6 +108,31 @@ class MotorcycleResource extends Resource
                                             ]),
                                     ]),
                             ]),
+                        Tabs\Tab::make('Features & Specs')
+                            ->icon('heroicon-o-wrench-screwdriver')
+                            ->schema([
+                                Section::make('Features')
+                                    ->description('Key features of this motorcycle')
+                                    ->schema([
+                                        \Filament\Forms\Components\TagsInput::make('features')
+                                            ->label('Features')
+                                            ->placeholder('Add feature (press Enter after each)')
+                                            ->helperText('Example: ABS, USB Charger, Large Storage, etc.')
+                                            ->separator(',')
+                                            ->columnSpanFull(),
+                                    ]),
+                                Section::make('Specifications')
+                                    ->description('Technical specifications')
+                                    ->schema([
+                                        \Filament\Forms\Components\KeyValue::make('specifications')
+                                            ->label('Specifications')
+                                            ->keyLabel('Specification Name')
+                                            ->valueLabel('Value')
+                                            ->addButtonLabel('Add specification')
+                                            ->helperText('Example: Engine Capacity → 125cc, Transmission → Automatic, etc.')
+                                            ->columnSpanFull(),
+                                    ]),
+                            ]),
                         Tabs\Tab::make('Media')
                             ->schema([
                                 Section::make('Foto Motor')
@@ -98,8 +142,29 @@ class MotorcycleResource extends Resource
                                         FileUpload::make('image')
                                             ->image()
                                             ->directory('motorcycles')
-                                            ->disk('public'),
+                                            ->disk('public')
+                                            ->imageEditor(),
                                     ]),
+                            ]),
+                        Tabs\Tab::make('SEO')
+                            ->icon('heroicon-o-magnifying-glass')
+                            ->schema([
+                                Section::make('Search Engine Optimization')
+                                    ->description('Improve visibility in search results')
+                                    ->schema([
+                                        TextInput::make('seo_title')
+                                            ->label('SEO Title')
+                                            ->maxLength(60)
+                                            ->helperText('If empty, uses motorcycle name (recommended: 50-60 characters)')
+                                            ->placeholder('Honda Beat 2023 - Rental Motor Malang'),
+                                        \Filament\Forms\Components\Textarea::make('seo_description')
+                                            ->label('SEO Description')
+                                            ->rows(3)
+                                            ->maxLength(160)
+                                            ->helperText('Recommended: 150-160 characters')
+                                            ->placeholder('Sewa Honda Beat 2023 di Malang dengan harga terjangkau...'),
+                                    ])
+                                    ->columnSpanFull(),
                             ]),
                     ])
                     ->persistTabInQueryString()
@@ -110,12 +175,31 @@ class MotorcycleResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->stackedOnMobile()
+            ->recordActionsPosition(RecordActionsPosition::BeforeCells)
             ->columns([
-                ImageColumn::make('image')->disk('public')->circular(),
-                TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('category.name')->label('Kategori')->sortable(),
+                ImageColumn::make('image')
+                    ->disk('public')
+                    ->circular()
+                    ->size(56),
+                TextColumn::make('name')
+                    ->label('Motor')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('semibold'),
+                TextColumn::make('slug')
+                    ->label('Slug')
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Slug copied!')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('category.name')
+                    ->label('Kategori')
+                    ->sortable(),
                 TextColumn::make('plate_number')->label('Plat')->searchable(),
-                TextColumn::make('price_per_day')->money('IDR', true)->label('Harga/Hari'),
+                TextColumn::make('price_per_day')
+                    ->money('IDR', true)
+                    ->label('Harga/Hari'),
                 BadgeColumn::make('status')
                     ->colors([
                         'success' => Motorcycle::STATUS_AVAILABLE,
@@ -126,7 +210,8 @@ class MotorcycleResource extends Resource
                         Motorcycle::STATUS_AVAILABLE => 'Tersedia',
                         Motorcycle::STATUS_RENTED => 'Disewa',
                         default => 'Maintenance',
-                    }),
+                    })
+                    ->badge(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
@@ -138,8 +223,8 @@ class MotorcycleResource extends Resource
                     ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
+                EditAction::make(),
+                DeleteAction::make()
                     ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') ?? false)
                     ->before(function (Motorcycle $record): void {
                         if ($record->rentals()->where('status', 'ongoing')->exists()) {
@@ -148,8 +233,8 @@ class MotorcycleResource extends Resource
                     }),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -170,3 +255,4 @@ class MotorcycleResource extends Resource
         ];
     }
 }
+
